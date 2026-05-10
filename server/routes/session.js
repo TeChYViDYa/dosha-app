@@ -11,10 +11,16 @@ const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
-const { createSession, getSession, updateSession } = require('../store/sessionStore');
-const { computeScores, shouldStopQuiz } = require('../engines/scoringEngine');
-const { getNextQuestion, formatQuestionForClient } = require('../engines/questionSelector');
+const { createSession, getSession, updateSession } = require('../services/sessionStore');
+const { computeScores, shouldStopQuiz } = require('../services/scoringEngine');
+const { getNextQuestion, formatQuestionForClient } = require('../services/questionSelector');
+const { saveQuizResult } = require('../services/resultSaver');
 const questions = require('../data/questions');
+
+// Anonymous ID may come from header, request body, or query string
+function getAnonymousId(req) {
+  return req.headers['x-anonymous-id'] || req.body?.anonymousId || req.query?.anonymousId || null;
+}
 
 // ── POST /api/session/start ───────────────────────────────────
 router.post('/start', (req, res) => {
@@ -108,12 +114,23 @@ router.post('/:id/answer', (req, res) => {
     const stopCheck = shouldStopQuiz(scores);
 
     if (stopCheck.shouldStop) {
-      // Complete the session
-      updateSession(req.params.id, {
+      // Complete the session in memory first
+      const completedSession = updateSession(req.params.id, {
         answers: updatedAnswers,
         scores,
         status: 'completed',
       });
+
+      // Persist to MongoDB in background (don't block the response)
+      const anonymousId = getAnonymousId(req);
+      if (anonymousId) {
+        console.log('Saving quiz result for session', req.params.id, 'anonymousId', anonymousId);
+        saveQuizResult(anonymousId, req.params.id, completedSession, stopCheck.reason)
+          .then(() => console.log('Quiz result save queued for session', req.params.id))
+          .catch(err => console.error('MongoDB save failed (non-fatal):', err));
+      } else {
+        console.warn('No anonymousId found for session completion', req.params.id, 'headers:', req.headers, 'body:', req.body, 'query:', req.query);
+      }
 
       return res.json({
         status: 'completed',
@@ -161,8 +178,13 @@ router.post('/:id/finish', (req, res) => {
     if (!session) return res.status(404).json({ error: 'Session not found' });
 
     const scores = computeScores(session.answers, questions);
+    const completedSession = updateSession(req.params.id, { status: 'completed', scores });
 
-    updateSession(req.params.id, { status: 'completed', scores });
+    const anonymousId = getAnonymousId(req);
+    if (anonymousId) {
+      saveQuizResult(anonymousId, req.params.id, completedSession, 'user_forced')
+        .catch(err => console.error('MongoDB save failed (non-fatal):', err.message));
+    }
 
     res.json({ status: 'completed', scores });
   } catch (err) {

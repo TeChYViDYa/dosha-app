@@ -1,4 +1,4 @@
-const { computeScores, shouldStopQuiz, normalizeToPercent, computeConfidence } = require('../engines/scoringEngine');
+const { computeScores, shouldStopQuiz, normalizeToPercent, computeConfidence } = require('../services/scoringEngine');
 const questions = require('../data/questions');
 
 let passed = 0, failed = 0;

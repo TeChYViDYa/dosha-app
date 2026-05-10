@@ -17,6 +17,7 @@ export default function QuizScreen({ question, progress, loading, onAnswer }) {
         </p>
         <h1>{question.text}</h1>
         <div className="options">
+          {loading && <p className="loading">Submitting answer...</p>}
           {question.options.map((option, index) => (
             <button
               key={option.text}

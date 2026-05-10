@@ -17,6 +17,17 @@
   }
 }
 
+.loading {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .hero {
   position: relative;
 

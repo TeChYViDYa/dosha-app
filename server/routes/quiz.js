@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const questions = require('../data/questions');
-const { formatQuestionForClient } = require('../engines/questionSelector');
+const { formatQuestionForClient } = require('../services/questionSelector');
 
 router.get('/questions', (req, res) => {
   const { category } = req.query;
