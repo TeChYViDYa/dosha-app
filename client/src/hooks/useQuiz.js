@@ -43,7 +43,44 @@ export function useQuiz() {
   }, []);
 
   // ── Submit an answer ────────────────────────────────────────
-  const submitAnswer = useCallback(async (optionIndex) => {
+  // const submitAnswer = useCallback(async (optionIndex) => {
+  //   if (!state.sessionId || !state.question) return;
+
+  //   setPartial({ status: 'loading' });
+
+  //   // Save answer locally for explanation layer
+  //   const newAnswer = {
+  //     questionId: state.question.id,
+  //     questionText: state.question.text,
+  //     selectedOption: state.question.options[optionIndex],
+  //     category: state.question.category,
+  //   };
+
+  //   try {
+  //     const data = await quizApi.submitAnswer(state.sessionId, state.question.id, optionIndex);
+
+  //     if (data.status === 'completed') {
+  //       setPartial({
+  //         status: 'completed',
+  //         scores: data.scores,
+  //         answers: [...state.answers, newAnswer],
+  //         question: null,
+  //       });
+  //     } else {
+  //       setPartial({
+  //         status: 'active',
+  //         question: data.nextQuestion,
+  //         scores: data.scores,
+  //         progress: data.progress,
+  //         answers: [...state.answers, newAnswer],
+  //       });
+  //     }
+  //   } catch (err) {
+  //     setPartial({ status: 'error', error: 'Failed to submit answer. Please try again.' });
+  //   }
+  // }, [state]);
+
+    const submitAnswer = useCallback(async (optionIndex, optionIndex2) => {
     if (!state.sessionId || !state.question) return;
 
     setPartial({ status: 'loading' });
@@ -53,11 +90,12 @@ export function useQuiz() {
       questionId: state.question.id,
       questionText: state.question.text,
       selectedOption: state.question.options[optionIndex],
+      selectedOption2: state.question.options[optionIndex2],
       category: state.question.category,
     };
 
     try {
-      const data = await quizApi.submitAnswer(state.sessionId, state.question.id, optionIndex);
+      const data = await quizApi.submitAnswer(state.sessionId, state.question.id, optionIndex, optionIndex2);
 
       if (data.status === 'completed') {
         setPartial({

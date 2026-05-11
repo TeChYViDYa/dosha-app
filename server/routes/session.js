@@ -74,7 +74,7 @@ router.post('/:id/answer', (req, res) => {
     if (!session) return res.status(404).json({ error: 'Session not found' });
     if (session.status === 'completed') return res.status(400).json({ error: 'Session already completed' });
 
-    const { questionId, optionIndex } = req.body;
+    const { questionId, optionIndex, optionIndex2 } = req.body;
 
     // Validate input
     if (!questionId || optionIndex === undefined) {
@@ -88,6 +88,12 @@ router.post('/:id/answer', (req, res) => {
     const selectedOption = question.options[optionIndex];
     if (!selectedOption) return res.status(400).json({ error: 'Invalid optionIndex' });
 
+    let selectedOption2 = null;
+    if (optionIndex2 !== undefined && optionIndex2 !== null) {
+      selectedOption2 = question.options[optionIndex2];
+      if (!selectedOption2) return res.status(400).json({ error: 'Invalid optionIndex2' });
+    }
+
     // Check for duplicate answer
     const alreadyAnswered = session.answers.some(a => a.questionId === questionId);
     if (alreadyAnswered) return res.status(400).json({ error: 'Question already answered' });
@@ -96,12 +102,22 @@ router.post('/:id/answer', (req, res) => {
     const newAnswer = {
       questionId,
       selectedOptionIndex: optionIndex,
+      selectedOptionIndex2: optionIndex2 !== undefined ? optionIndex2 : null,
+
       selectedOption: {
         vata:  selectedOption.vata,
         pitta: selectedOption.pitta,
         kapha: selectedOption.kapha,
         text:  selectedOption.text,
       },
+      selectedOption2: selectedOption2
+        ? {
+            vata:  selectedOption2.vata,
+            pitta: selectedOption2.pitta,
+            kapha: selectedOption2.kapha,
+            text:  selectedOption2.text,
+          }
+        : null,
       answeredAt: new Date(),
     };
 

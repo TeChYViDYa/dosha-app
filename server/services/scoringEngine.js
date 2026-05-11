@@ -8,10 +8,13 @@ function computeRawScores(answers, scoreType, allQuestions) {
   for (const answer of answers) {
     const question = allQuestions.find(q => q.id === answer.questionId);
     if (!question || !question[scoreType]) continue;
-    const option = answer.selectedOption;
-    raw.vata  += option.vata  || 0;
-    raw.pitta += option.pitta || 0;
-    raw.kapha += option.kapha || 0;
+    
+    const option = answer.selectedOption || { vata: 0, pitta: 0, kapha: 0 };
+    const option2 = answer.selectedOption2 || { vata: 0, pitta: 0, kapha: 0 };
+    raw.vata  += (option.vata || 0) + ((option2.vata || 0) / 2);
+    raw.pitta += (option.pitta || 0) + ((option2.pitta || 0) / 2);
+    raw.kapha += (option.kapha || 0) + ((option2.kapha || 0) / 2);
+
   }
   return raw;
 }

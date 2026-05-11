@@ -1,4 +1,38 @@
+import { useState } from "react";
+
+
 export default function QuizScreen({ question, progress, loading, onAnswer }) {
+  const [firstChoice, setFirstChoice] = useState(null);
+  const [selected, setSelected] = useState();
+  const [secondChoice, setSecondChoice] = useState(null);
+
+  const handleOptionClick = (index) => {
+    if (firstChoice === null) {
+      setFirstChoice(index);
+      setSelected(true);
+      return;
+    }
+
+    if (index === firstChoice) {
+      return;
+    }
+
+    setSecondChoice(index);
+
+  };
+
+  const handleContinueClick = () => {
+      onAnswer(
+    firstChoice,
+    secondChoice
+    );
+    console.log(selected);
+    setFirstChoice(null);
+    setSecondChoice(null);
+    console.log('First choice:', firstChoice);
+    console.log('Second choice:', secondChoice);  
+  }
+
   if (!question) {
     return (
       <main className="screen">
@@ -21,14 +55,32 @@ export default function QuizScreen({ question, progress, loading, onAnswer }) {
           {question.options.map((option, index) => (
             <button
               key={option.text}
+              className = {firstChoice === index  ? "selected" : ""}          
               type="button"
               disabled={loading}
-              onClick={() => onAnswer(index)}
+              onClick={async () => await handleOptionClick(index)  } 
             >
-              {option.text}
+              {option.text} {firstChoice === index && <span className="checkmark">(Ⅰ)</span>}
+              {secondChoice === index && <span className="checkmark">(Ⅱ)</span>}
             </button>
           ))}
         </div>
+
+        {
+          firstChoice !== null && (
+            <button
+              id = "continue-button"
+              key="Continue"
+              type="button"
+              disabled={loading}
+              onClick={handleContinueClick}
+            >
+              Continue
+            </button>
+          )
+        }
+
+
       </section>
     </main>
   );
