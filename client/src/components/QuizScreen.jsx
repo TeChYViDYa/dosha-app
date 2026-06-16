@@ -36,7 +36,7 @@ export default function QuizScreen({ question, progress, loading, onAnswer }) {
     );
   }
 
-  // Derive category from answered count for sidebar display
+  // Derive category from  count for sidebar display
   const categories = ['physical', 'mental', 'digestive', 'behavioral'];
   const questionsPerCat = Math.ceil(maxAllowed / categories.length);
   const currentCatIndex = Math.min(Math.floor(answered / questionsPerCat), categories.length - 1);
