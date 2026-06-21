@@ -25,18 +25,22 @@ function getAnonymousId(req) {
 // ── POST /api/session/start ───────────────────────────────────
 router.post('/start', (req, res) => {
   try {
+    console.log('POST /start called with body:', req.body);
     const id = uuidv4();
     const session = createSession(id);
+    console.log('Session created:', id);
 
     // Get the first question immediately
     const firstQuestion = getNextQuestion([], null, 0);
     if (!firstQuestion) {
+      console.error('No questions available');
       return res.status(500).json({ error: 'No questions available' });
     }
 
     // Mark it as asked
     updateSession(id, { askedQuestionIds: [firstQuestion.id] });
 
+    console.log('Returning session:', id);
     res.status(201).json({
       sessionId: id,
       status: 'active',
