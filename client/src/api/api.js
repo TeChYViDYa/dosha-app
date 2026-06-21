@@ -24,7 +24,7 @@
   export const anonymousId = getOrCreateAnonymousId();
 
   const api = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env.VITE_API_URL || 'https://dosha-app-server.onrender.com/api',
     timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '15000', 10),
     headers: {
       'Content-Type': 'application/json',
