@@ -38,6 +38,7 @@ export function useQuiz() {
         answers: [],
       });
     } catch (err) {
+      console.error('Quiz start error:', err.message, err.response?.status, err.response?.data);
       setPartial({ status: 'error', error: 'Failed to start quiz. Is the server running?' });
     }
   }, []);
